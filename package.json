@@ -1,0 +1,21 @@
+{
+  "name": "clubmindori-ana-sofia",
+  "version": "1.0.0",
+  "description": "Ana SofIA - Sistema de ayuda para Mindora Collection",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "next": "^14.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "@anthropic-ai/sdk": "^0.16.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.50.0",
+    "eslint-config-next": "^14.0.0"
+  }
+}
