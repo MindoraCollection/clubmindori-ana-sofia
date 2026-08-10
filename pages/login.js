@@ -30,13 +30,11 @@ export default function Login() {
         return
       }
 
-      // Guardar en localStorage
       localStorage.setItem('usuario_id', data.id)
       localStorage.setItem('usuario_nombre', data.nombre)
       localStorage.setItem('usuario_sucursal', data.sucursal)
       localStorage.setItem('usuario_actual', usuario)
 
-      // Redirigir
       router.push('/cierre-turno')
     } catch (err) {
       setError('Error al conectar. Intenta de nuevo.')
@@ -56,10 +54,10 @@ export default function Login() {
           <div className={styles.logo}>
             <img src="/logo.png" alt="Mindora" />
           </div>
-          <h1>Cierre de Turno</h1>
+          <h1 className={styles.heading}>Cierre de Turno</h1>
           <p className={styles.subtitle}>Mindora Collection</p>
 
-          <form onSubmit={handleLogin}>
+          <form onSubmit={handleLogin} className={styles.form}>
             <div className={styles.formGroup}>
               <label>Usuario</label>
               <input
@@ -85,7 +83,7 @@ export default function Login() {
 
             {error && <p className={styles.error}>{error}</p>}
 
-            <button type="submit" disabled={loading}>
+            <button type="submit" disabled={loading} className={styles.submitBtn}>
               {loading ? 'Ingresando...' : 'Ingresar'}
             </button>
           </form>
