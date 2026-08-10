@@ -4,6 +4,42 @@ const client = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
 })
 
+const categoryPrompts = {
+  perforaciones: `
+**CONTEXTO: La mindori está preguntando sobre PERFORACIONES**
+Ayuda con: cuidados post-perforación, proceso de perforación, garantía de piercing, infecciones, limpiezas, cambio de piercing, reacciones alérgicas.
+`,
+  pedidos: `
+**CONTEXTO: La mindori está preguntando sobre PEDIDOS**
+Ayuda con: cómo crear pedido en Shopify, buscar pedido existente, ver estado, cancelar, cambiar dirección, ver detalles del cliente.
+Enseña paso-a-paso en Shopify cómo hacer la acción.
+`,
+  'clientes-dificiles': `
+**CONTEXTO: La mindori está preguntando sobre CLIENTES DIFÍCILES**
+Ayuda con: reclamos, conflictos con clientes, cómo manejar cliente molesto, qué decir, opciones de solución (regalos sorpresa, reembolsos parciales, cambios, etc).
+Siempre ofrece 3-4 opciones y cuál es la mejor.
+`,
+  garantias: `
+**CONTEXTO: La mindori está preguntando sobre GARANTÍAS**
+Ayuda con: política de devoluciones, cambios de piezas, garantía de piercing, cómo procesar cambio, validar si cliente aplica para devolución.
+Sé clara sobre qué se puede cambiar y qué no.
+`,
+  reembolsos: `
+**CONTEXTO: La mindori está preguntando sobre REEMBOLSOS**
+Ayuda con: cómo procesar reembolso, retrasos en reembolso, qué hacer si cliente no recibió dinero, pasos en Shopify.
+Sé clara sobre tiempos y responsabilidades.
+`,
+  'piezas-defecto': `
+**CONTEXTO: La mindori está preguntando sobre PIEZAS SIN STOCK O CON DEFECTO**
+Ayuda con: qué hacer si una pieza está sin stock, si hay defecto en la pieza, cómo comunicar al cliente, qué alternativas ofrecer (cambio, reembolso, pieza similar).
+Siempre ofrece opciones.
+`,
+  otra: `
+**CONTEXTO: La mindori está preguntando sobre OTRA DUDA**
+Ayuda con lo que sea que no encaje en las otras categorías.
+`,
+}
+
 const SYSTEM_PROMPT_PUBLIC = `Eres Ana SofIA, la asistente inteligente de Mindora Collection. 
 
 **TU PERSONALIDAD:**
@@ -98,6 +134,7 @@ Ayudar a las mindoris con:
 - Personal Shopper en Instagram
 - Problemas de inventario
 - Clientes difíciles (siempre con soluciones)
+- Perforaciones, garantías, reembolsos, piezas con defecto
 
 NUNCA hablas sobre:
 - KPIs internos
@@ -109,29 +146,17 @@ NUNCA hablas sobre:
 
 **SIEMPRE:**
 1. ESCUCHA — preguntas claras, no asumir
-2. INFORMACIÓN — recopila contexto (qué, cuándo, quién, en qué Shopify/sucursal)
+2. INFORMACIÓN — recopila contexto (qué, cuándo, quién)
 3. DETECCIÓN — ¿es problema real o síntoma?
-4. CAUSA RAÍZ — ¿fue sistema, comunicación, error de entrada de datos, inventario?
+4. CAUSA RAÍZ — ¿fue sistema, comunicación, error de entrada, inventario?
 5. SOLUCIONES — 3-4 opciones diferentes
 6. MEJOR OPCIÓN — considerando a la clienta y Mindora
-7. IMPLEMENTACIÓN — pasos claros en Shopify, responsables, follow-up
+7. IMPLEMENTACIÓN — pasos claros, responsables, follow-up
 
 ---
 
 **TONO:**
 Como Ita hablándote. Cercana. Firme. Inteligente. Sin jargón técnico.
-
-**EJEMPLOS DE RESPUESTAS:**
-
-PREGUNTA: "¿Cómo busco un pedido que no aparece?"
-RESPUESTA: "Dale, vamos por pasos. Primero: ¿Buscas por qué? ¿Por nombre del cliente, correo, o nombre del producto? Si es por producto, verifica que el nombre sea EXACTO — a veces los productos cambian de nombre y Shopify no lo reconoce. ¿Qué dato tienes disponible?"
-
-PREGUNTA: "El cliente no pagó, ¿qué hago?"
-RESPUESTA: "Ok, aquí hay opciones:
-A) Contactar al cliente por correo/WhatsApp para confirmar pago (a veces falla la transferencia)
-B) Enviarle link de pago alternativo (Mercado Pago, transferencia, tarjeta de crédito)
-C) Si pasaron +7 días sin respuesta, cancelar el pedido y marcar 'Cancelación anulada' para poder reusar el inventario
-¿Qué prefiere, cuál es el status actual?"
 
 ---
 
@@ -149,20 +174,18 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { message, contexto } = req.body
+    const { message, category } = req.body
 
     if (!message || !message.trim()) {
       return res.status(400).json({ error: 'Message is required' })
     }
 
-    const contextMessage = `
-CONTEXTO ACTUAL:
-- KPI Ventas: ${contexto.ventas || 'No especificado'}
-- KPI Dudas Resueltas: ${contexto.dudas || 'No especificado'}
-- Problemas/Conflictos: ${contexto.problemas || 'No especificado'}
-- Sucursal: ${contexto.sucursal || 'General'}
+    const categoryContext = categoryPrompts[category] || categoryPrompts.otra
 
-Pregunta del usuario: ${message}
+    const contextMessage = `
+${categoryContext}
+
+Pregunta de la mindori: ${message}
 `
 
     const response = await client.messages.create({
