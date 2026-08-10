@@ -12,7 +12,8 @@
     "next": "^14.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "@anthropic-ai/sdk": "^0.16.0"
+    "@anthropic-ai/sdk": "^0.16.0",
+    "@supabase/supabase-js": "^2.45.0"
   },
   "devDependencies": {
     "eslint": "^8.50.0",
