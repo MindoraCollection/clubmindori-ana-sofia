@@ -59,9 +59,10 @@ export default function Login() {
 
           <form onSubmit={handleLogin} className={styles.form}>
             <div className={styles.formGroup}>
-              <label>Usuario</label>
+              <label className={styles.label}>Usuario</label>
               <input
                 type="text"
+                className={styles.input}
                 value={usuario}
                 onChange={(e) => setUsuario(e.target.value)}
                 placeholder="Tu usuario"
@@ -71,9 +72,10 @@ export default function Login() {
             </div>
 
             <div className={styles.formGroup}>
-              <label>Contraseña</label>
+              <label className={styles.label}>Contraseña</label>
               <input
                 type="password"
+                className={styles.input}
                 value={contraseña}
                 onChange={(e) => setContraseña(e.target.value)}
                 placeholder="Tu contraseña"
