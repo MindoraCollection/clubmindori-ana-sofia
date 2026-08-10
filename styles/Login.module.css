@@ -27,7 +27,7 @@
   object-fit: contain;
 }
 
-h1 {
+.heading {
   font-size: 28px;
   color: #2D2D2B;
   margin: 20px 0 10px;
@@ -40,7 +40,7 @@ h1 {
   margin-bottom: 30px;
 }
 
-form {
+.form {
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -95,7 +95,7 @@ form {
   margin: 0;
 }
 
-button[type="submit"] {
+.submitBtn {
   padding: 14px 24px;
   background: #D4A574;
   color: white;
@@ -109,11 +109,11 @@ button[type="submit"] {
   margin-top: 10px;
 }
 
-button[type="submit"]:hover:not(:disabled) {
+.submitBtn:hover:not(:disabled) {
   background: #C99463;
 }
 
-button[type="submit"]:disabled {
+.submitBtn:disabled {
   background: #CCC;
   cursor: not-allowed;
 }
@@ -123,7 +123,7 @@ button[type="submit"]:disabled {
     padding: 30px 20px;
   }
 
-  h1 {
+  .heading {
     font-size: 24px;
   }
 }
