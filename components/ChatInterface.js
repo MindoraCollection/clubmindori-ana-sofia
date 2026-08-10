@@ -5,14 +5,18 @@ export default function ChatInterface({ isAdmin = false }) {
   const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
-  const [contexto, setContexto] = useState({
-    ventas: '',
-    dudas: '',
-    problemas: '',
-    sucursal: 'general',
-  })
-  const [showContexto, setShowContexto] = useState(true)
+  const [selectedCategory, setSelectedCategory] = useState(null)
   const chatEndRef = useRef(null)
+
+  const categories = [
+    { id: 'perforaciones', label: '🔗 PERFORACIONES', description: 'Cuidados, procesos, garantía' },
+    { id: 'pedidos', label: '📦 PEDIDOS', description: 'Crear, buscar, cancelar' },
+    { id: 'clientes-dificiles', label: '😤 CLIENTES DIFÍCILES', description: 'Reclamos, conflictos' },
+    { id: 'garantias', label: '✅ GARANTÍAS', description: 'Devoluciones, cambios' },
+    { id: 'reembolsos', label: '💰 REEMBOLSOS', description: 'Procesar, retrasos' },
+    { id: 'piezas-defecto', label: '📸 PIEZAS SIN STOCK O CON DEFECTO', description: 'Inventario, defectos' },
+    { id: 'otra', label: '❓ OTRA DUDA', description: 'Algo que no encaja' },
+  ]
 
   const scrollToBottom = () => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -23,7 +27,7 @@ export default function ChatInterface({ isAdmin = false }) {
   }, [messages])
 
   const handleSendMessage = async () => {
-    if (!input.trim()) return
+    if (!input.trim() || !selectedCategory) return
 
     const userMessage = input
     setInput('')
@@ -36,7 +40,7 @@ export default function ChatInterface({ isAdmin = false }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           message: userMessage,
-          contexto: contexto,
+          category: selectedCategory,
           isAdmin: isAdmin,
         })
       })
@@ -58,46 +62,26 @@ export default function ChatInterface({ isAdmin = false }) {
     <div className={styles.container}>
       <div className={styles.sidebar}>
         <div className={styles.sidebarContent}>
-          <div 
-            className={`${styles.contextToggle} ${showContexto ? styles.expanded : ''}`}
-            onClick={() => setShowContexto(!showContexto)}
-          >
-            <span>Contexto</span>
-            <span>▼</span>
+          <div className={styles.categoryHeader}>
+            <span>CATEGORÍA</span>
           </div>
 
-          {showContexto && (
-            <div className={styles.contextFields}>
-              <input
-                type="text"
-                placeholder="KPI Ventas"
-                value={contexto.ventas}
-                onChange={(e) => setContexto({...contexto, ventas: e.target.value})}
-              />
-              <input
-                type="text"
-                placeholder="KPI Dudas Resueltas"
-                value={contexto.dudas}
-                onChange={(e) => setContexto({...contexto, dudas: e.target.value})}
-              />
-              <input
-                type="text"
-                placeholder="Problemas/Conflictos"
-                value={contexto.problemas}
-                onChange={(e) => setContexto({...contexto, problemas: e.target.value})}
-              />
-              <select
-                value={contexto.sucursal}
-                onChange={(e) => setContexto({...contexto, sucursal: e.target.value})}
+          <div className={styles.categoriesList}>
+            {categories.map((cat) => (
+              <button
+                key={cat.id}
+                className={`${styles.categoryBtn} ${selectedCategory === cat.id ? styles.active : ''}`}
+                onClick={() => setSelectedCategory(cat.id)}
               >
-                <option value="general">General</option>
-                <option value="querétaro-pro">Querétaro Pro</option>
-                <option value="monterrey">Monterrey</option>
-                <option value="galerías">Galerías</option>
-                <option value="juriquilla">Juriquilla</option>
-                <option value="miyana">Miyana</option>
-              </select>
-              <p className={styles.hint}>Actualiza para respuestas personalizadas</p>
+                <div className={styles.categoryLabel}>{cat.label}</div>
+                <div className={styles.categoryDesc}>{cat.description}</div>
+              </button>
+            ))}
+          </div>
+
+          {selectedCategory && (
+            <div className={styles.selectedInfo}>
+              <p>✅ Categoría seleccionada</p>
             </div>
           )}
         </div>
@@ -105,19 +89,23 @@ export default function ChatInterface({ isAdmin = false }) {
 
       <div className={styles.chatArea}>
         <div className={styles.messages}>
-          {messages.length === 0 ? (
+          {messages.length === 0 && !selectedCategory && (
             <div className={styles.emptyState}>
-              <p>¿Qué necesitas hoy?</p>
+              <p>Selecciona una categoría para empezar</p>
             </div>
-          ) : (
-            messages.map((msg, idx) => (
-              <div key={idx} className={`${styles.message} ${styles[msg.role]}`}>
-                <div className={styles.messageBubble}>
-                  {msg.content}
-                </div>
-              </div>
-            ))
           )}
+          {messages.length === 0 && selectedCategory && (
+            <div className={styles.emptyState}>
+              <p>¿Cuál es tu duda?</p>
+            </div>
+          )}
+          {messages.map((msg, idx) => (
+            <div key={idx} className={`${styles.message} ${styles[msg.role]}`}>
+              <div className={styles.messageBubble}>
+                {msg.content}
+              </div>
+            </div>
+          ))}
           {loading && (
             <div className={`${styles.message} ${styles.assistant}`}>
               <div className={styles.messageBubble}>
@@ -134,10 +122,10 @@ export default function ChatInterface({ isAdmin = false }) {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-            placeholder="Escribe tu pregunta..."
-            disabled={loading}
+            placeholder={selectedCategory ? "Escribe tu duda..." : "Selecciona una categoría primero..."}
+            disabled={loading || !selectedCategory}
           />
-          <button onClick={handleSendMessage} disabled={loading || !input.trim()}>
+          <button onClick={handleSendMessage} disabled={loading || !input.trim() || !selectedCategory}>
             {loading ? '...' : 'Enviar'}
           </button>
         </div>
