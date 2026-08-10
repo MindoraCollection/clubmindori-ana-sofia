@@ -230,4 +230,203 @@ export default function CierreTurno() {
                 <label>Salidas de Caja (motivo + monto)</label>
                 <textarea
                   value={salidas}
-                  onChange={(e) =>
+                  onChange={(e) => setSalidas(e.target.value)}
+                  placeholder="Ej: Cambio de billete $500"
+                />
+              </div>
+
+              <div className={styles.formGroup}>
+                <label>Entradas de Caja (motivo + monto)</label>
+                <textarea
+                  value={entradas}
+                  onChange={(e) => setEntradas(e.target.value)}
+                  placeholder="Ej: Cobro previo $300"
+                />
+              </div>
+            </div>
+
+            {/* SECCIÓN 2: CLIENTES */}
+            <div className={styles.section}>
+              <h2>👥 2. CLIENTES</h2>
+
+              <div className={styles.formGroup}>
+                <label>¿Tuviste situación difícil con algún cliente?</label>
+                <textarea
+                  value={situacionesClientes}
+                  onChange={(e) => setSituacionesClientes(e.target.value)}
+                  placeholder="Describe qué pasó"
+                />
+              </div>
+
+              <div className={styles.formGroup}>
+                <label>Cantidad de garantías otorgadas</label>
+                <input
+                  type="number"
+                  value={garantias}
+                  onChange={(e) => setGarantias(e.target.value)}
+                  placeholder="0"
+                />
+              </div>
+
+              <div className={styles.formGroup}>
+                <label>Cantidad de cambios de piezas</label>
+                <input
+                  type="number"
+                  value={cambiosPiezas}
+                  onChange={(e) => setCambiosPiezas(e.target.value)}
+                  placeholder="0"
+                />
+              </div>
+
+              <div className={styles.formGroup}>
+                <label>Piezas que pedían pero no tenemos</label>
+                <textarea
+                  value={piezasSinStock}
+                  onChange={(e) => setPiezasSinStock(e.target.value)}
+                  placeholder="Ej: Argollas talla 8, collares plateados"
+                />
+              </div>
+
+              <div className={styles.formGroup}>
+                <label>Comentarios positivos de clientes</label>
+                <textarea
+                  value={comentariosPositivos}
+                  onChange={(e) => setComentariosPositivos(e.target.value)}
+                  placeholder="Qué dijeron de buen"
+                />
+              </div>
+
+              <div className={styles.formGroup}>
+                <label>Comentarios negativos de clientes</label>
+                <textarea
+                  value={comentariosNegativos}
+                  onChange={(e) => setComentariosNegativos(e.target.value)}
+                  placeholder="Qué dijeron de malo"
+                />
+              </div>
+            </div>
+
+            {/* SECCIÓN 3: CRECIMIENTO */}
+            <div className={styles.section}>
+              <h2>📈 3. CRECIMIENTO</h2>
+
+              <div className={styles.formGroup}>
+                <label>¿Aprendiste algo nuevo hoy?</label>
+                <textarea
+                  value={aprendizajes}
+                  onChange={(e) => setAprendizajes(e.target.value)}
+                  placeholder="Qué aprendiste"
+                />
+              </div>
+
+              <div className={styles.formGroup}>
+                <label>Reseñas de Google que conseguiste</label>
+                <input
+                  type="number"
+                  value={resenas}
+                  onChange={(e) => setResenas(e.target.value)}
+                  placeholder="0"
+                />
+              </div>
+
+              <div className={styles.formGroup}>
+                <label>Buenos comentarios de clientas (cantidad + ejemplos)</label>
+                <textarea
+                  value={buenasOpiniones}
+                  onChange={(e) => setBuenasOpiniones(e.target.value)}
+                  placeholder="Ej: 3 clientas dijeron que les encantó el servicio"
+                />
+              </div>
+
+              <div className={styles.formGroup}>
+                <label>Malos comentarios (cantidad + ejemplos)</label>
+                <textarea
+                  value={malasOpiniones}
+                  onChange={(e) => setMalasOpiniones(e.target.value)}
+                  placeholder="Ej: 1 cliente se quejó del tiempo de espera"
+                />
+              </div>
+            </div>
+
+            {/* SECCIÓN 4: SUCURSAL */}
+            <div className={styles.section}>
+              <h2>🏢 4. SUCURSAL</h2>
+
+              <div className={styles.formGroup}>
+                <label>Insumos faltantes</label>
+                <textarea
+                  value={insumosFaltantes}
+                  onChange={(e) => setInsumosFaltantes(e.target.value)}
+                  placeholder="Ej: Algodón, agujas estériles"
+                />
+              </div>
+
+              <div className={styles.formGroup}>
+                <label>Accesorios que necesitamos pedir</label>
+                <textarea
+                  value={accesoriosNecesarios}
+                  onChange={(e) => setAccesoriosNecesarios(e.target.value)}
+                  placeholder="Ej: Aros plateados talla 5, 10 piezas"
+                />
+              </div>
+
+              <div className={styles.formGroup}>
+                <label>Mantenimiento o fallas de equipos</label>
+                <textarea
+                  value={mantenimiento}
+                  onChange={(e) => setMantenimiento(e.target.value)}
+                  placeholder="Ej: Caja registradora lenta, espejo roto"
+                />
+              </div>
+
+              <div className={styles.formGroup}>
+                <label>¿Faltó alguna vendedora? ¿Por qué?</label>
+                <textarea
+                  value={faltasPersonal}
+                  onChange={(e) => setFaltasPersonal(e.target.value)}
+                  placeholder="Ej: María - enfermedad, Sofía - permiso"
+                />
+              </div>
+            </div>
+
+            {/* CHECKLIST */}
+            <div className={styles.section}>
+              <h2>✅ CHECKLIST DIARIO</h2>
+
+              <div className={styles.checklistGrid}>
+                {[
+                  { key: 'limpieza', label: '🧹 Limpieza de la sucursal' },
+                  { key: 'uniforme', label: '👗 Uniforme completo' },
+                  { key: 'unas', label: '💅 Uñas y maquillaje' },
+                  { key: 'aperturaCaja', label: '💳 Apertura de caja correcta' },
+                  { key: 'playlist', label: '🎵 Playlist correcta' },
+                  { key: 'insumos', label: '📦 Insumos completos' },
+                  { key: 'regalos', label: '🎁 Regalos Copa disponibles' },
+                  { key: 'vendedoras', label: '👥 Todas vendedoras asignadas' },
+                ].map(item => (
+                  <div key={item.key} className={styles.checklistItem}>
+                    <label>
+                      <input
+                        type="checkbox"
+                        checked={checklist[item.key]}
+                        onChange={() => handleChecklistChange(item.key)}
+                      />
+                      <span>{item.label}</span>
+                    </label>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* BOTÓN SUBMIT */}
+            <div className={styles.submitSection}>
+              <button type="submit" disabled={loading} className={styles.submitBtn}>
+                {loading ? '⏳ Guardando...' : '💾 Guardar Cierre de Turno'}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </>
+  )
+}
