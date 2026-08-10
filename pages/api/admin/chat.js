@@ -4,6 +4,42 @@ const client = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
 })
 
+const categoryPrompts = {
+  perforaciones: `
+**CONTEXTO: El admin está preguntando sobre PERFORACIONES**
+Ayuda con: cuidados post-perforación, proceso de perforación, garantía de piercing, infecciones, limpiezas, cambio de piercing, reacciones alérgicas, política de garantía, cómo comunicar garantía a cliente.
+`,
+  pedidos: `
+**CONTEXTO: El admin está preguntando sobre PEDIDOS**
+Ayuda con: cómo crear pedido en Shopify, buscar pedido existente, ver estado, cancelar, cambiar dirección, ver detalles del cliente, editar productos en pedido, agregar notas, ver cronología.
+Enseña paso-a-paso en Shopify cómo hacer la acción. Respuestas más técnicas y profundas.
+`,
+  'clientes-dificiles': `
+**CONTEXTO: El admin está preguntando sobre CLIENTES DIFÍCILES**
+Ayuda con: reclamos complejos, conflictos con clientes, cómo manejar cliente molesto, estrategia de retención, opciones de solución (regalos sorpresa, reembolsos parciales, cambios, etc).
+Siempre ofrece 3-4 opciones y cuál es la mejor. Considera impacto financiero y reputacional.
+`,
+  garantias: `
+**CONTEXTO: El admin está preguntando sobre GARANTÍAS**
+Ayuda con: política de devoluciones, cambios de piezas, garantía de piercing, cómo procesar cambio, validar si cliente aplica para devolución, reporte de defectos, documentación.
+Sé clara sobre qué se puede cambiar y qué no. Considera costos.
+`,
+  reembolsos: `
+**CONTEXTO: El admin está preguntando sobre REEMBOLSOS**
+Ayuda con: cómo procesar reembolso en Shopify, retrasos en reembolso, qué hacer si cliente no recibió dinero, pasos exactos, método de pago original, verificación de transacción.
+Sé clara sobre tiempos, responsabilidades y documentación.
+`,
+  'piezas-defecto': `
+**CONTEXTO: El admin está preguntando sobre PIEZAS SIN STOCK O CON DEFECTO**
+Ayuda con: qué hacer si una pieza está sin stock, si hay defecto en la pieza, cómo comunicar al cliente, qué alternativas ofrecer (cambio, reembolso, pieza similar), cómo documentar el defecto.
+Siempre ofrece opciones. Considera impacto en inventario.
+`,
+  otra: `
+**CONTEXTO: El admin está preguntando sobre OTRA DUDA**
+Ayuda con lo que sea que no encaje en las otras categorías. Respuesta experta y considerada.
+`,
+}
+
 const SYSTEM_PROMPT_ADMIN = `Eres Ana SofIA, la asistente inteligente de Mindora Collection. 
 
 **VERSIÓN ADMINISTRACIÓN - Acceso completo.**
@@ -102,6 +138,7 @@ Ayudar a Ita, Lu y Andrés con CUALQUIER cosa:
 - Conflictos con clientes (cómo manejar)
 - Inventario (qué hay falta, qué hay exceso)
 - Cancelaciones y reembolsos
+- Garantías y devoluciones
 - Personal Shopper en IG
 - Decisiones sobre cómo mejorar el proceso
 - Problemas de operación
@@ -130,25 +167,6 @@ Ayudar a Ita, Lu y Andrés con CUALQUIER cosa:
 
 ---
 
-**EJEMPLOS ADMIN:**
-
-PREGUNTA: "Tenemos 15 pedidos no preparados. ¿Qué hago?"
-RESPUESTA: "Vamos estratégico. Analicemos:
-A) Cuál es la CAUSA RAÍZ de no preparados: ¿Es inventario? ¿Tiempo? ¿Comunicación?
-B) Cuál es URGENTE (clientes molesta, fecha próxima) vs cuál puede esperar
-C) Quién puede preparar qué (depende de sucursal y disponibilidad)
-D) Qué seguimiento hacer a cliente
-¿Qué tiempo hace que estos están no preparados? ¿Todos de la misma sucursal?"
-
-PREGUNTA: "Un cliente reclama que su pedido no llegó pero la cronología dice entregado"
-RESPUESTA: "Ok, aquí hay opciones:
-A) Cliente no recibió físicamente pero dice entregado en Shopify — error de mensajería
-B) Cliente está mintiendo (raro pero pasa) — revisar foto de cronología
-C) Dirección equivocada
-¿Tienes foto de entrega en la cronología? ¿Qué dice exactamente? ¿Cuándo fue entregado?"
-
----
-
 **TONO:**
 Como Ita te enseñaría. Directa. Inteligente. Sin tecnicismos innecesarios.
 `
@@ -159,20 +177,18 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { message, contexto } = req.body
+    const { message, category } = req.body
 
     if (!message || !message.trim()) {
       return res.status(400).json({ error: 'Message is required' })
     }
 
-    const contextMessage = `
-CONTEXTO ACTUAL:
-- KPI Ventas: ${contexto.ventas || 'No especificado'}
-- KPI Dudas Resueltas: ${contexto.dudas || 'No especificado'}
-- Problemas/Conflictos: ${contexto.problemas || 'No especificado'}
-- Sucursal/Área: ${contexto.sucursal || 'General'}
+    const categoryContext = categoryPrompts[category] || categoryPrompts.otra
 
-Pregunta/Situación: ${message}
+    const contextMessage = `
+${categoryContext}
+
+Pregunta del admin: ${message}
 `
 
     const response = await client.messages.create({
