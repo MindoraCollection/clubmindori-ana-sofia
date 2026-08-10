@@ -10,7 +10,6 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check if already authenticated
     const isAuth = localStorage.getItem('adminAuth') === 'true';
     if (isAuth) {
       setAuthenticated(true);
