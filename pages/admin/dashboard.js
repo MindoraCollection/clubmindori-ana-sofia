@@ -1,170 +1,142 @@
-import { useState, useEffect } from 'react'
-import { supabase } from '../../lib/supabase'
-import styles from '../../styles/AdminDashboard.module.css'
-import Head from 'next/head'
+.container {
+  min-height: 100vh;
+  background: #F9F7F4;
+  padding: 20px;
+}
 
-export default function Dashboard() {
-  const [cierres, setCierres] = useState([])
-  const [filtros, setFiltros] = useState({ sucursal: '', fecha: '', mindori: '' })
-  const [loading, setLoading] = useState(true)
-  const [admin, setAdmin] = useState(false)
-  const [password, setPassword] = useState('')
-  const [authenticated, setAuthenticated] = useState(false)
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+}
 
-  // Check admin password
-  const handleAuth = (e) => {
-    e.preventDefault()
-    if (password === 'admin3b89a297cb') {
-      setAuthenticated(true)
-      localStorage.setItem('admin_auth', 'true')
-    } else {
-      alert('Contraseña incorrecta')
-    }
-  }
+.header h1 {
+  margin: 0;
+  color: #2D2D2B;
+}
 
-  // Fetch data
-  useEffect(() => {
-    if (!authenticated) return
+.logoutBtn {
+  padding: 8px 16px;
+  background: #E8B4C8;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
 
-    const fetchData = async () => {
-      setLoading(true)
-      let query = supabase.from('cierres_turno').select('*')
+.authContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: #E8B4C8;
+}
 
-      if (filtros.sucursal) query = query.eq('sucursal', filtros.sucursal)
-      if (filtros.fecha) query = query.gte('creado_en', filtros.fecha)
-      if (filtros.mindori) query = query.eq('usuario_id', filtros.mindori)
+.authBox {
+  background: white;
+  padding: 40px;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 400px;
+}
 
-      const { data, error } = await query.order('creado_en', { ascending: false })
+.authInput {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #E8E8E5;
+  border-radius: 6px;
+  margin-bottom: 16px;
+}
 
-      if (error) {
-        console.error('Error:', error)
-      } else {
-        setCierres(data || [])
-      }
-      setLoading(false)
-    }
+.authBtn {
+  width: 100%;
+  padding: 12px;
+  background: #E8B4C8;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
 
-    fetchData()
-  }, [filtros, authenticated])
+.kpiGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 30px;
+}
 
-  if (!authenticated) {
-    return (
-      <>
-        <Head>
-          <title>Admin Dashboard</title>
-        </Head>
-        <div className={styles.authContainer}>
-          <div className={styles.authBox}>
-            <h1>Dashboard Administrativo</h1>
-            <form onSubmit={handleAuth}>
-              <input
-                type="password"
-                placeholder="Contraseña"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className={styles.authInput}
-              />
-              <button type="submit" className={styles.authBtn}>
-                Acceder
-              </button>
-            </form>
-          </div>
-        </div>
-      </>
-    )
-  }
+.kpiCard {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  border-left: 4px solid #E8B4C8;
+}
 
-  const totalVentas = cierres.reduce((sum, c) => sum + (c.venta_total || 0), 0)
-  const totalReembolsos = cierres.reduce((sum, c) => sum + (c.reembolsos || 0), 0)
-  const totalGarantias = cierres.reduce((sum, c) => sum + (c.garantias_cantidad || 0), 0)
+.kpiValue {
+  font-size: 28px;
+  font-weight: 700;
+  color: #2D2D2B;
+}
 
-  return (
-    <>
-      <Head>
-        <title>Dashboard | Mindora</title>
-      </Head>
-      <div className={styles.container}>
-        <div className={styles.header}>
-          <h1>Dashboard Administrativo</h1>
-          <button onClick={() => setAuthenticated(false)} className={styles.logoutBtn}>
-            Salir
-          </button>
-        </div>
+.kpiLabel {
+  font-size: 12px;
+  color: #A0A09E;
+  margin-top: 8px;
+}
 
-        {/* KPIs */}
-        <div className={styles.kpiGrid}>
-          <div className={styles.kpiCard}>
-            <div className={styles.kpiValue}>${totalVentas.toFixed(2)}</div>
-            <div className={styles.kpiLabel}>Venta Total</div>
-          </div>
-          <div className={styles.kpiCard}>
-            <div className={styles.kpiValue}>${totalReembolsos.toFixed(2)}</div>
-            <div className={styles.kpiLabel}>Reembolsos</div>
-          </div>
-          <div className={styles.kpiCard}>
-            <div className={styles.kpiValue}>{totalGarantias}</div>
-            <div className={styles.kpiLabel}>Garantías</div>
-          </div>
-          <div className={styles.kpiCard}>
-            <div className={styles.kpiValue}>{cierres.length}</div>
-            <div className={styles.kpiLabel}>Total Cierres</div>
-          </div>
-        </div>
+.filterBox {
+  background: white;
+  padding: 16px;
+  border-radius: 8px;
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+}
 
-        {/* Filtros */}
-        <div className={styles.filterBox}>
-          <input
-            type="date"
-            value={filtros.fecha}
-            onChange={(e) => setFiltros({ ...filtros, fecha: e.target.value })}
-            className={styles.filterInput}
-          />
-          <input
-            type="text"
-            placeholder="Sucursal"
-            value={filtros.sucursal}
-            onChange={(e) => setFiltros({ ...filtros, sucursal: e.target.value })}
-            className={styles.filterInput}
-          />
-          <button onClick={() => setFiltros({ sucursal: '', fecha: '', mindori: '' })} className={styles.resetBtn}>
-            Limpiar filtros
-          </button>
-        </div>
+.filterInput {
+  padding: 10px;
+  border: 1px solid #E8E8E5;
+  border-radius: 6px;
+  flex: 1;
+}
 
-        {/* Tabla */}
-        <div className={styles.tableContainer}>
-          {loading ? (
-            <p>Cargando...</p>
-          ) : (
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th>Fecha</th>
-                  <th>Mindori</th>
-                  <th>Sucursal</th>
-                  <th>Turno</th>
-                  <th>Venta Total</th>
-                  <th>Reembolsos</th>
-                  <th>Garantías</th>
-                </tr>
-              </thead>
-              <tbody>
-                {cierres.map((cierre) => (
-                  <tr key={cierre.id}>
-                    <td>{new Date(cierre.creado_en).toLocaleDateString()}</td>
-                    <td>{cierre.usuario_id}</td>
-                    <td>{cierre.sucursal}</td>
-                    <td>{cierre.turno}</td>
-                    <td>${cierre.venta_total || 0}</td>
-                    <td>${cierre.reembolsos || 0}</td>
-                    <td>{cierre.garantias_cantidad || 0}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-        </div>
-      </div>
-    </>
-  )
+.resetBtn {
+  padding: 10px 16px;
+  background: #F0F0ED;
+  border: 1px solid #E8E8E5;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.tableContainer {
+  background: white;
+  border-radius: 8px;
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table thead {
+  background: #F9F7F4;
+  border-bottom: 2px solid #E8E8E5;
+}
+
+.table th {
+  padding: 16px;
+  text-align: left;
+  font-weight: 600;
+  color: #2D2D2B;
+}
+
+.table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid #E8E8E5;
+  color: #2D2D2B;
 }
