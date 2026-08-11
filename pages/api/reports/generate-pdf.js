@@ -1,4 +1,5 @@
 import { jsPDF } from 'jspdf';
+import 'jspdf-autotable';
 import { supabase } from '../../../lib/supabase';
 
 export default async function handler(req, res) {
