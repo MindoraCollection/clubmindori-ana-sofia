@@ -1,5 +1,3 @@
-import './globals.css';
-
 export const metadata = {
   title: 'Mindora Collection',
   description: 'Sistema de gestión Mindora',
