@@ -1,8 +1,8 @@
 'use client';
 
-import { Suspense, useState } from 'react';
+import { useState } from 'react';
 
-function ScannerContent() {
+export default function Scanner() {
   const [loading, setLoading] = useState(false);
   const [vendedora, setVendedora] = useState('');
   const [sucursal, setSuccursal] = useState('');
@@ -193,13 +193,5 @@ function ScannerContent() {
 
       </div>
     </div>
-  );
-}
-
-export default function Scanner() {
-  return (
-    <Suspense fallback={<div>Cargando...</div>}>
-      <ScannerContent />
-    </Suspense>
   );
 }
