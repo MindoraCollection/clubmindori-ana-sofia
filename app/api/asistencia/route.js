@@ -1,13 +1,21 @@
 export const dynamic = 'force-dynamic';
+
 import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
 
 export async function GET(request) {
   try {
-    // Crear cliente DENTRO de la función, no afuera
+    // Validar que las variables existen
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+      return NextResponse.json(
+        { error: 'Falta configurar variables de entorno en Vercel' },
+        { status: 500 }
+      );
+    }
+
     const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+      process.env.NEXT_PUBLIC_SUPABASE_URL,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
     );
 
     const { searchParams } = new URL(request.url);
@@ -63,9 +71,9 @@ export async function GET(request) {
     });
 
   } catch (error) {
-    console.error('Error:', error);
+    console.error('Error en API:', error);
     return NextResponse.json(
-      { error: error.message },
+      { error: error.message || 'Error al registrar' },
       { status: 500 }
     );
   }
