@@ -3,9 +3,10 @@ import { NextResponse } from 'next/server';
 
 export async function GET(request) {
   try {
+    // Crear cliente DENTRO de la función, no afuera
     const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL,
-      process.env.SUPABASE_SERVICE_ROLE_KEY
+      process.env.NEXT_PUBLIC_SUPABASE_URL || '',
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
     );
 
     const { searchParams } = new URL(request.url);
@@ -19,12 +20,10 @@ export async function GET(request) {
       );
     }
 
-    // Obtener la hora actual
     const ahora = new Date();
     const horaRegistrada = ahora.toTimeString().slice(0, 5);
     const fecha = ahora.toISOString().split('T')[0];
 
-    // Buscar último registro del día
     const { data: ultimoRegistro } = await supabase
       .from('asistencia')
       .select('tipo')
@@ -37,7 +36,6 @@ export async function GET(request) {
       ? 'checkin'
       : 'checkout';
 
-    // Registrar en Supabase
     const { error } = await supabase
       .from('asistencia')
       .insert({
