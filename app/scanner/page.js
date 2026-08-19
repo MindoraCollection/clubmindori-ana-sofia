@@ -1,16 +1,11 @@
 'use client';
 
 import { Suspense, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
 
 function ScannerContent() {
-  const searchParams = useSearchParams();
-  
   const [loading, setLoading] = useState(false);
   const [vendedora, setVendedora] = useState('');
-  const [sucursal, setSuccursal] = useState(
-    searchParams.get('sucursal') || ''
-  );
+  const [sucursal, setSuccursal] = useState('');
   const [resultado, setResultado] = useState(null);
 
   const sucursales = [
@@ -18,12 +13,6 @@ function ScannerContent() {
     { id: 'PLAZA_GALERIAS', nombre: 'Plaza Galerías' },
     { id: 'MIYANA_POLANCO', nombre: 'Miyana Polanco' },
     { id: 'FASHION_DRIVE', nombre: 'Fashion Drive Mty' }
-  ];
-
-  const vendedoras = [
-    'María González', 'Ana López', 'Sofia Martínez', 'Laura Rodríguez',
-    'Jessica Pérez', 'Daniela Sánchez', 'Valeria Torres', 'Andrea Flores',
-    'Catalina Ruiz', 'Alejandra Gómez'
   ];
 
   const registrarAsistencia = async (e) => {
@@ -41,9 +30,7 @@ function ScannerContent() {
       if (response.ok) {
         setResultado({
           exito: true,
-          mensaje: data.mensaje,
-          tipo: data.tipo,
-          hora: data.hora
+          mensaje: data.mensaje
         });
         setVendedora('');
         setTimeout(() => {
@@ -58,7 +45,7 @@ function ScannerContent() {
     } catch (error) {
       setResultado({
         exito: false,
-        mensaje: 'Error al registrar: ' + error.message
+        mensaje: 'Error: ' + error.message
       });
     } finally {
       setLoading(false);
@@ -112,11 +99,7 @@ function ScannerContent() {
             color: resultado.exito ? '#155724' : '#721c24',
             textAlign: 'center',
             fontSize: '16px',
-            fontWeight: 'bold',
-            minHeight: '50px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
+            fontWeight: 'bold'
           }}>
             {resultado.mensaje}
           </div>
@@ -164,10 +147,9 @@ function ScannerContent() {
             </label>
             <input
               type="text"
-              list="vendedoras-list"
               value={vendedora}
               onChange={(e) => setVendedora(e.target.value)}
-              placeholder="Busca tu nombre o escribelo"
+              placeholder="Escribe tu nombre"
               required
               style={{
                 width: '100%',
@@ -177,13 +159,7 @@ function ScannerContent() {
                 fontSize: '16px',
                 boxSizing: 'border-box'
               }}
-              autoComplete="off"
             />
-            <datalist id="vendedoras-list">
-              {vendedoras.map(v => (
-                <option key={v} value={v} />
-              ))}
-            </datalist>
           </div>
 
           <button
@@ -200,8 +176,6 @@ function ScannerContent() {
               cursor: loading ? 'not-allowed' : 'pointer',
               transition: 'all 0.3s'
             }}
-            onMouseEnter={(e) => !loading && (e.target.style.background = '#764ba2')}
-            onMouseLeave={(e) => !loading && (e.target.style.background = '#667eea')}
           >
             {loading ? '⏳ Registrando...' : '✓ REGISTRAR'}
           </button>
@@ -214,7 +188,7 @@ function ScannerContent() {
           marginTop: '20px',
           fontSize: '12px'
         }}>
-          Los datos se envían directamente a Supabase.
+          Tus datos se envían a Mindora Collection
         </p>
 
       </div>
@@ -224,7 +198,7 @@ function ScannerContent() {
 
 export default function Scanner() {
   return (
-    <Suspense fallback={<div style={{minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>Cargando...</div>}>
+    <Suspense fallback={<div>Cargando...</div>}>
       <ScannerContent />
     </Suspense>
   );
