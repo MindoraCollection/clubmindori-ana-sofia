@@ -3,16 +3,12 @@
 import { useEffect, useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-);
-
 export default function DashboardAsistencia() {
   const [registros, setRegistros] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filtroFecha, setFiltroFecha] = useState(new Date().toISOString().split('T')[0]);
   const [filtroSucursal, setFiltroSucursal] = useState('');
+  const [supabase, setSupabase] = useState(null);
 
   const sucursales = [
     'BL_JURIQUILLA',
@@ -21,11 +17,24 @@ export default function DashboardAsistencia() {
     'FASHION_DRIVE'
   ];
 
+  // Inicializar Supabase solo en el cliente
   useEffect(() => {
-    cargarDatos();
-  }, [filtroFecha, filtroSucursal]);
+    const client = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    );
+    setSupabase(client);
+  }, []);
+
+  useEffect(() => {
+    if (supabase) {
+      cargarDatos();
+    }
+  }, [filtroFecha, filtroSucursal, supabase]);
 
   const cargarDatos = async () => {
+    if (!supabase) return;
+    
     setLoading(true);
     try {
       let query = supabase
