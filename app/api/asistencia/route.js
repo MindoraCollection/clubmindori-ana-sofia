@@ -1,13 +1,13 @@
 import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
-);
-
 export async function GET(request) {
   try {
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL,
+      process.env.SUPABASE_SERVICE_ROLE_KEY
+    );
+
     const { searchParams } = new URL(request.url);
     const sucursal = searchParams.get('sucursal')?.toUpperCase() || '';
     const vendedora = searchParams.get('vendedora') || '';
@@ -21,10 +21,10 @@ export async function GET(request) {
 
     // Obtener la hora actual
     const ahora = new Date();
-    const horaRegistrada = ahora.toTimeString().slice(0, 5); // HH:MM
-    const fecha = ahora.toISOString().split('T')[0]; // YYYY-MM-DD
+    const horaRegistrada = ahora.toTimeString().slice(0, 5);
+    const fecha = ahora.toISOString().split('T')[0];
 
-    // Buscar último registro del día para esta vendedora
+    // Buscar último registro del día
     const { data: ultimoRegistro } = await supabase
       .from('asistencia')
       .select('tipo')
@@ -33,7 +33,6 @@ export async function GET(request) {
       .order('created_at', { ascending: false })
       .limit(1);
 
-    // Determinar si es check-in o check-out
     const tipoRegistro = !ultimoRegistro || ultimoRegistro.length === 0 || ultimoRegistro[0].tipo === 'checkout'
       ? 'checkin'
       : 'checkout';
@@ -51,7 +50,6 @@ export async function GET(request) {
 
     if (error) throw error;
 
-    // Respuesta amigable
     const mensaje = tipoRegistro === 'checkin' 
       ? `✅ Check-in a las ${horaRegistrada}`
       : `👋 Check-out a las ${horaRegistrada}`;
