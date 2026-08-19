@@ -1,0 +1,75 @@
+import { createClient } from '@supabase/supabase-js';
+import { NextResponse } from 'next/server';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+);
+
+export async function GET(request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const sucursal = searchParams.get('sucursal')?.toUpperCase() || '';
+    const vendedora = searchParams.get('vendedora') || '';
+
+    if (!sucursal || !vendedora) {
+      return NextResponse.json(
+        { error: 'Faltan parámetros: sucursal y vendedora' },
+        { status: 400 }
+      );
+    }
+
+    // Obtener la hora actual
+    const ahora = new Date();
+    const horaRegistrada = ahora.toTimeString().slice(0, 5); // HH:MM
+    const fecha = ahora.toISOString().split('T')[0]; // YYYY-MM-DD
+
+    // Buscar último registro del día para esta vendedora
+    const { data: ultimoRegistro } = await supabase
+      .from('asistencia')
+      .select('tipo')
+      .eq('vendedora_nombre', vendedora)
+      .eq('fecha', fecha)
+      .order('created_at', { ascending: false })
+      .limit(1);
+
+    // Determinar si es check-in o check-out
+    const tipoRegistro = !ultimoRegistro || ultimoRegistro.length === 0 || ultimoRegistro[0].tipo === 'checkout'
+      ? 'checkin'
+      : 'checkout';
+
+    // Registrar en Supabase
+    const { error } = await supabase
+      .from('asistencia')
+      .insert({
+        vendedora_nombre: vendedora,
+        sucursal: sucursal,
+        tipo: tipoRegistro,
+        hora_registrada: horaRegistrada,
+        fecha: fecha
+      });
+
+    if (error) throw error;
+
+    // Respuesta amigable
+    const mensaje = tipoRegistro === 'checkin' 
+      ? `✅ Check-in a las ${horaRegistrada}`
+      : `👋 Check-out a las ${horaRegistrada}`;
+
+    return NextResponse.json({
+      success: true,
+      mensaje: mensaje,
+      vendedora: vendedora,
+      sucursal: sucursal,
+      hora: horaRegistrada,
+      tipo: tipoRegistro
+    });
+
+  } catch (error) {
+    console.error('Error:', error);
+    return NextResponse.json(
+      { error: error.message },
+      { status: 500 }
+    );
+  }
+}
