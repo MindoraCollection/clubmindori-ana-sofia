@@ -1,16 +1,16 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { Suspense, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 
-export default function Scanner() {
-  const router = useRouter();
+function ScannerContent() {
   const searchParams = useSearchParams();
   
   const [loading, setLoading] = useState(false);
-  const [mensaje, setMensaje] = useState('');
   const [vendedora, setVendedora] = useState('');
-  const [sucursal, setSuccursal] = useState('');
+  const [sucursal, setSuccursal] = useState(
+    searchParams.get('sucursal') || ''
+  );
   const [resultado, setResultado] = useState(null);
 
   const sucursales = [
@@ -48,7 +48,6 @@ export default function Scanner() {
         setVendedora('');
         setTimeout(() => {
           setResultado(null);
-          setMensaje('');
         }, 3000);
       } else {
         setResultado({
@@ -215,11 +214,18 @@ export default function Scanner() {
           marginTop: '20px',
           fontSize: '12px'
         }}>
-          Los datos se envían directamente a Supabase.<br/>
-          Tu hora es registrada por el servidor (no se puede falsificar).
+          Los datos se envían directamente a Supabase.
         </p>
 
       </div>
     </div>
+  );
+}
+
+export default function Scanner() {
+  return (
+    <Suspense fallback={<div style={{minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>Cargando...</div>}>
+      <ScannerContent />
+    </Suspense>
   );
 }
