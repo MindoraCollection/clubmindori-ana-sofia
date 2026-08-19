@@ -1,14 +1,12 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { createClient } from '@supabase/supabase-js';
 
 export default function DashboardAsistencia() {
   const [registros, setRegistros] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filtroFecha, setFiltroFecha] = useState(new Date().toISOString().split('T')[0]);
   const [filtroSucursal, setFiltroSucursal] = useState('');
-  const [supabase, setSupabase] = useState(null);
 
   const sucursales = [
     'BL_JURIQUILLA',
@@ -17,40 +15,26 @@ export default function DashboardAsistencia() {
     'FASHION_DRIVE'
   ];
 
-  // Inicializar Supabase solo en el cliente
   useEffect(() => {
-    const client = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-    );
-    setSupabase(client);
-  }, []);
-
-  useEffect(() => {
-    if (supabase) {
-      cargarDatos();
-    }
-  }, [filtroFecha, filtroSucursal, supabase]);
+    cargarDatos();
+  }, [filtroFecha, filtroSucursal]);
 
   const cargarDatos = async () => {
-    if (!supabase) return;
-    
     setLoading(true);
     try {
-      let query = supabase
-        .from('asistencia')
-        .select('*')
-        .eq('fecha', filtroFecha)
-        .order('timestamp', { ascending: true });
+      const params = new URLSearchParams({
+        fecha: filtroFecha,
+        ...(filtroSucursal && { sucursal: filtroSucursal })
+      });
 
-      if (filtroSucursal) {
-        query = query.eq('sucursal', filtroSucursal);
+      const response = await fetch(`/api/asistencia/obtener?${params}`);
+      const result = await response.json();
+
+      if (result.success) {
+        setRegistros(result.data);
+      } else {
+        console.error('Error:', result.error);
       }
-
-      const { data, error } = await query;
-      if (error) throw error;
-
-      setRegistros(data || []);
     } catch (error) {
       console.error('Error:', error);
     } finally {
@@ -153,7 +137,7 @@ export default function DashboardAsistencia() {
               color: '#999',
               textAlign: 'center'
             }}>
-              Sin registros para esta fecha y sucursal
+              Sin registros para esta fecha
             </p>
           ) : (
             <div style={{ display: 'grid', gap: '20px' }}>
@@ -190,9 +174,6 @@ export default function DashboardAsistencia() {
                           {reg.tipo === 'checkin' ? '✓ Entrada' : '✗ Salida'}
                         </div>
                         <div style={{ color: '#666' }}>{reg.hora_registrada}</div>
-                        <div style={{ fontSize: '12px', color: '#999' }}>
-                          {reg.sucursal}
-                        </div>
                       </div>
                     ))}
                   </div>
