@@ -1,11 +1,13 @@
 export const dynamic = 'force-dynamic';
 
+// v2 - Debug
 import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
 
 export async function GET(request) {
   try {
-        console.log('URL:', process.env.NEXT_PUBLIC_SUPABASE_URL);
+    // DEBUG    
+    console.log('URL:', process.env.NEXT_PUBLIC_SUPABASE_URL);
     console.log('KEY:', process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
     console.log('SERVICE:', process.env.SUPABASE_SERVICE_ROLE_KEY);
     // Validar que las variables existen
